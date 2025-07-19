@@ -12,12 +12,15 @@ API.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log("Access token expired. Trying refresh token...");
+
       originalRequest._retry = true;
       try {
         await refreshToken();
+        console.log("Token refreshed. Retrying original request...");
         return API(originalRequest);
       } catch (err) {
-        console.error("Token refresh failed");
+        console.error("Token refresh failed. Redirecting to login...");
         window.location.href = "/auth/login";
       }
     }
