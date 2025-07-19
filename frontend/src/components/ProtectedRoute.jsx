@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import Cookies from "js-cookie";
 import { refreshToken } from "../api/refreshAPI";
 
 const ProtectedRoute = ({ children }) => {
@@ -8,31 +7,25 @@ const ProtectedRoute = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = Cookies.get("accessToken");
-      if (token) {
-        setAuthenticated(true);
-        setLoading(false);
-        return;
-      }
-
+    const verifySession = async () => {
       try {
-        const res = await refreshToken(); // try to refresh
-        console.log("Refreshed in protected route:", res.data.message);
+        const res = await refreshToken();
+        console.log("Session verified via refresh:", res.data.message);
         setAuthenticated(true);
       } catch (err) {
-        console.log("Refresh failed in protected route.");
+        console.warn("Session invalid:", err?.response?.data?.message || err.message);
         setAuthenticated(false);
       } finally {
         setLoading(false);
       }
     };
 
-    checkAuth();
+    verifySession();
   }, []);
 
   if (loading) return <div>Loading...</div>;
   if (!authenticated) return <Navigate to="/login" replace />;
+
   return children;
 };
 

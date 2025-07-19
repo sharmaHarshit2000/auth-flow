@@ -3,7 +3,7 @@ import { refreshToken } from "./refreshAPI";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
+  withCredentials: true, // Important for cookie auth
 });
 
 API.interceptors.response.use(
@@ -11,17 +11,20 @@ API.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Only retry once
     if (error.response?.status === 401 && !originalRequest._retry) {
-      console.log("Access token expired. Trying refresh token...");
-
       originalRequest._retry = true;
+
       try {
-        await refreshToken();
-        console.log("Token refreshed. Retrying original request...");
+        const res = await refreshToken();
+        console.log("Refresh success:", res.data.message);
+
+        // Retry the original request
         return API(originalRequest);
       } catch (err) {
-        console.error("Token refresh failed. Redirecting to login...");
+        console.error("Refresh failed:", err.response?.data || err.message);
         window.location.href = "/login";
+        return Promise.reject(err);
       }
     }
 

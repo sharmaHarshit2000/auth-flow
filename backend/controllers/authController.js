@@ -2,13 +2,19 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const users = [];
-const otps = {}; // { email/mobile: { otp, expiresAt } }
+const otps = {}; // { identifier: { otp, expiresAt } }
 
 const generateOTP = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
 
 const generateToken = (payload, secret, expiresIn) =>
   jwt.sign(payload, secret, { expiresIn });
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  sameSite: "Strict",
+  secure: process.env.NODE_ENV === "production",
+};
 
 export const signup = async (req, res) => {
   const { name, email, mobile, password } = req.body;
@@ -28,8 +34,7 @@ export const signup = async (req, res) => {
   users.push(newUser);
 
   const otp = generateOTP();
-
-  otps[email] = { otp, expiresAt: Date.now() + 5 * 60 * 1000 }; // 5 minutes
+  otps[email] = { otp, expiresAt: Date.now() + 5 * 60 * 1000 };
 
   console.log(`[OTP] Email OTP for ${email}: ${otp}`);
 
@@ -39,7 +44,7 @@ export const signup = async (req, res) => {
 export const verifySignup = (req, res) => {
   const { email, otp } = req.body;
 
-  const user = users.find((u) => u.email == email);
+  const user = users.find((u) => u.email === email);
   if (!user) return res.status(404).json({ message: "User not found" });
 
   const record = otps[email];
@@ -55,20 +60,20 @@ export const verifySignup = (req, res) => {
 
 export const login = async (req, res) => {
   const { identifier, password } = req.body;
-  
+
   const user = users.find(
     (u) => u.email === identifier || u.mobile === identifier
   );
-  if (!user || !user.verified)
-    return res
-      .status(401)
-      .json({ message: "Invalid credentials or not verified" });
+  if (!user || !user.verified) {
+    return res.status(401).json({ message: "Invalid credentials or not verified" });
+  }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) return res.status(401).json({ message: "Invalid credentials" });
 
   const otp = generateOTP();
   otps[identifier] = { otp, expiresAt: Date.now() + 5 * 60 * 1000 };
+
   console.log(`[OTP] Login OTP for ${identifier}: ${otp}`);
 
   return res.status(200).json({ message: "OTP sent" });
@@ -76,13 +81,13 @@ export const login = async (req, res) => {
 
 export const verifyLogin = (req, res) => {
   const { identifier, otp } = req.body;
+
   const user = users.find(
     (u) => u.email === identifier || u.mobile === identifier
   );
   if (!user) return res.status(404).json({ message: "User not found" });
 
   const record = otps[identifier];
-
   if (!record || record.otp !== otp || Date.now() > record.expiresAt) {
     return res.status(400).json({ message: "Invalid or expired OTP" });
   }
@@ -92,7 +97,7 @@ export const verifyLogin = (req, res) => {
   const accessToken = generateToken(
     { id: user.id },
     process.env.JWT_SECRET,
-    "10m"
+    "10m" 
   );
   const refreshToken = generateToken(
     { id: user.id },
@@ -100,8 +105,8 @@ export const verifyLogin = (req, res) => {
     "1d"
   );
 
-  res.cookie("accessToken", accessToken, { httpOnly: true });
-  res.cookie("refreshToken", refreshToken, { httpOnly: true });
+  res.cookie("accessToken", accessToken, COOKIE_OPTIONS);
+  res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);
 
   return res.status(200).json({
     message: "Login successful",
@@ -120,9 +125,24 @@ export const refresh = (req, res) => {
       process.env.JWT_SECRET,
       "10m"
     );
-    res.cookie("accessToken", newAccessToken, { httpOnly: true });
+    res.cookie("accessToken", newAccessToken, COOKIE_OPTIONS);
     res.status(200).json({ message: "Token refreshed" });
   } catch (err) {
     res.status(403).json({ message: "Invalid refresh token" });
   }
 };
+
+export const getMe = (req, res) => {
+  const token = req.cookies.accessToken;
+  if (!token) return res.status(401).json({ message: "No token" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = users.find((u) => u.id === decoded.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ user });
+  } catch {
+    res.status(401).json({ message: "Invalid token" });
+  }
+};
+
