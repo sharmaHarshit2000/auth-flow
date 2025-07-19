@@ -32,3 +32,20 @@ export const signup = async (req, res) => {
 
   return res.status(200).json({ message: "OTP sent to email" });
 };
+
+export const verifySignup = (req, res) => {
+  const { email, otp } = req.body;
+
+  const user = user.find((u) => u.email == email);
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const record = otps[email];
+  if (!record || record.otp !== otp || Date.now() > record.expiresAt) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  user.verified = true;
+  delete otps[email];
+
+  return res.status(200).json({ message: "Signup verified" });
+};
