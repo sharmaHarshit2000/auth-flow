@@ -107,3 +107,17 @@ export const verifyLogin = (req, res) => {
       user: { name: user.name, email: user.email },
     });
 };
+
+export const refresh = (req, res) => {
+  const token = req.cookies.refreshToken;
+  if (!token) return res.status(401).json({ message: "No refresh token" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
+    const newAccessToken = generateToken({ id: decoded.id }, process.env.JWT_SECRET, "10m");
+    res.cookie("accessToken", newAccessToken, { httpOnly: true });
+    res.status(200).json({ message: "Token refreshed" });
+  } catch (err) {
+    res.status(403).json({ message: "Invalid refresh token" });
+  }
+}
