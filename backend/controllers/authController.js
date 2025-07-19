@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 const users = [];
 const otps = {}; // { email/mobile: { otp, expiresAt } }
@@ -39,7 +39,7 @@ export const signup = async (req, res) => {
 export const verifySignup = (req, res) => {
   const { email, otp } = req.body;
 
-  const user = user.find((u) => u.email == email);
+  const user = users.find((u) => u.email == email);
   if (!user) return res.status(404).json({ message: "User not found" });
 
   const record = otps[email];
@@ -55,14 +55,14 @@ export const verifySignup = (req, res) => {
 
 export const login = async (req, res) => {
   const { identifier, password } = req.body;
+  
   const user = users.find(
-    (u) =>
-      (u.email === identifier || u.mobile === identifier) &&
-      u.password === password
+    (u) => u.email === identifier || u.mobile === identifier
   );
-  if (!user) return res.status(401).json({ message: "Invalid credentials" });
-  if (!user.verified)
-    return res.status(403).json({ message: "Account not verified" });
+  if (!user || !user.verified)
+    return res
+      .status(401)
+      .json({ message: "Invalid credentials or not verified" });
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) return res.status(401).json({ message: "Invalid credentials" });
@@ -103,12 +103,10 @@ export const verifyLogin = (req, res) => {
   res.cookie("accessToken", accessToken, { httpOnly: true });
   res.cookie("refreshToken", refreshToken, { httpOnly: true });
 
-  return res
-    .status(200)
-    .json({
-      message: "Login successful",
-      user: { name: user.name, email: user.email },
-    });
+  return res.status(200).json({
+    message: "Login successful",
+    user: { name: user.name, email: user.email },
+  });
 };
 
 export const refresh = (req, res) => {
@@ -117,10 +115,14 @@ export const refresh = (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
-    const newAccessToken = generateToken({ id: decoded.id }, process.env.JWT_SECRET, "10m");
+    const newAccessToken = generateToken(
+      { id: decoded.id },
+      process.env.JWT_SECRET,
+      "10m"
+    );
     res.cookie("accessToken", newAccessToken, { httpOnly: true });
     res.status(200).json({ message: "Token refreshed" });
   } catch (err) {
     res.status(403).json({ message: "Invalid refresh token" });
   }
-}
+};
