@@ -5,4 +5,13 @@ const RawAPI = axios.create({
   withCredentials: true,
 });
 
-export const refreshToken = () => RawAPI.get("/auth/refresh-token");
+export const refreshToken = async () => {
+  try {
+    const res = await RawAPI.get("/auth/refresh-token");
+    console.log("Refresh successful:", res.data);
+    return res;
+  } catch (err) {
+    console.warn("Refresh failed:", err.response?.data || err.message);
+    throw err;
+  }
+};

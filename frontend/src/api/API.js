@@ -21,7 +21,7 @@ API.interceptors.response.use(
         return API(originalRequest);
       } catch (err) {
         console.error("Token refresh failed. Redirecting to login...");
-        window.location.href = "/auth/login";
+        window.location.href = "/login";
       }
     }
 
