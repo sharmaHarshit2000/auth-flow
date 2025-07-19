@@ -8,10 +8,9 @@ import {
   Link,
 } from "@mui/material";
 import { toast } from "react-toastify";
-import { verifyLogin } from "../../api/authAPI"; 
-import AuthLayout from "../components/AuthLayout"; 
+import { verifyLogin } from "../../api/authAPI";
 
-const LoginVerifyPage = () => {
+const LoginVerifyForm = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const identifier = state?.identifier || "";
@@ -28,9 +27,9 @@ const LoginVerifyPage = () => {
 
     try {
       setLoading(true);
-      await verifyLogin({ identifier, otp }); // Send to backend
+      await verifyLogin({ identifier, otp });
       toast.success("Login successful");
-      navigate("/dashboard"); 
+      navigate("/dashboard");
     } catch (err) {
       toast.error(err?.response?.data?.message || "Verification failed");
     } finally {
@@ -39,10 +38,14 @@ const LoginVerifyPage = () => {
   };
 
   return (
-    <AuthLayout title="Verify Login OTP">
+    <>
+      <Typography variant="h5" align="center" gutterBottom>
+        Verify Login
+      </Typography>
       <Typography align="center" sx={{ mb: 2 }}>
         Enter the OTP sent to <strong>{identifier}</strong>
       </Typography>
+
       <form onSubmit={handleVerify} noValidate>
         <TextField
           label="OTP"
@@ -51,7 +54,11 @@ const LoginVerifyPage = () => {
           margin="normal"
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
-          inputProps={{ maxLength: 6 }}
+          slotProps={{
+            htmlInput: {
+              maxLength: 6,
+            },
+          }}
         />
         <Button
           type="submit"
@@ -69,8 +76,8 @@ const LoginVerifyPage = () => {
           </Link>
         </Box>
       </form>
-    </AuthLayout>
+    </>
   );
 };
 
-export default LoginVerifyPage;
+export default LoginVerifyForm;

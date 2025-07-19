@@ -1,8 +1,6 @@
 import { useState } from "react";
 import {
-  Box,
   Button,
-  Container,
   TextField,
   Typography,
   Link,
@@ -48,46 +46,39 @@ export default function LoginForm() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box mt={8}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Login
-        </Typography>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <TextField
-            label="Email or Mobile"
-            fullWidth
-            margin="normal"
-            {...register("identifier")}
-            error={Boolean(errors.identifier)}
-            helperText={errors.identifier?.message}
-          />
-          <TextField
-            label="Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            {...register("password")}
-            error={Boolean(errors.password)}
-            helperText={errors.password?.message}
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 2 }}
-            disabled={loading || isSubmitting}
-          >
-            {loading ? "Sending OTP..." : "Login"}
-          </Button>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <TextField
+        label="Email or Mobile"
+        fullWidth
+        margin="normal"
+        {...register("identifier")}
+        error={Boolean(errors.identifier)}
+        helperText={errors.identifier?.message}
+      />
+      <TextField
+        label="Password"
+        type="password"
+        fullWidth
+        margin="normal"
+        {...register("password")}
+        error={Boolean(errors.password)}
+        helperText={errors.password?.message}
+      />
+      <Button
+        type="submit"
+        fullWidth
+        variant="contained"
+        sx={{ mt: 2 }}
+        disabled={loading || isSubmitting}
+      >
+        {loading ? "Sending OTP..." : "Login"}
+      </Button>
 
-          <Box mt={2} textAlign="center">
-            <Link href="/signup" variant="body2">
-              Don't have an account? Sign up
-            </Link>
-          </Box>
-        </form>
-      </Box>
-    </Container>
+      <Typography align="center" sx={{ mt: 2 }}>
+        <Link href="/signup" variant="body2">
+          Don't have an account? Sign up
+        </Link>
+      </Typography>
+    </form>
   );
 }

@@ -4,14 +4,12 @@ import {
     TextField,
     Button,
     Typography,
-    Container,
-    Paper,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
 import { verifySignup } from "../../api/authAPI";
 
-const SignupVerify = () => {
+const SignupVerifyForm = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [otp, setOtp] = useState("");
@@ -41,35 +39,38 @@ const SignupVerify = () => {
     };
 
     return (
-        <Container maxWidth="sm">
-            <Paper elevation={3} sx={{ mt: 8, p: 4 }}>
-                <Typography variant="h5" gutterBottom align="center">
-                    Verify Signup
-                </Typography>
-                <Typography align="center" sx={{ mb: 2 }}>
-                    Enter the OTP sent to <b>{email}</b>
-                </Typography>
-                <Box component="form" onSubmit={handleSubmit}>
-                    <TextField
-                        label="OTP"
-                        fullWidth
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        slotProps={{ input: { maxLength: 6 } }}
-                        margin="normal"
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 2 }}
-                    >
-                        Verify
-                    </Button>
-                </Box>
-            </Paper>
-        </Container>
+        <>
+            <Typography variant="h5" gutterBottom align="center">
+                Verify Signup
+            </Typography>
+            <Typography align="center" sx={{ mb: 2 }}>
+                Enter the OTP sent to <b>{email}</b>
+            </Typography>
+
+            <Box component="form" onSubmit={handleSubmit}>
+                <TextField
+                    label="OTP"
+                    fullWidth
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    slotProps={{
+                        htmlInput: {
+                            maxLength: 6,
+                        },
+                    }}
+                    margin="normal"
+                />
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 2 }}
+                >
+                    Verify
+                </Button>
+            </Box>
+        </>
     );
 };
 
-export default SignupVerify;
+export default SignupVerifyForm;
