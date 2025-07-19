@@ -1,9 +1,4 @@
-import axios from "axios";
-
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
-});
+import API from "./API";
 
 export const signup = (data) => API.post("/auth/signup", data);
 export const verifySignup = (data) => API.post("/auth/signup/verify", data);

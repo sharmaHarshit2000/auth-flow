@@ -37,7 +37,7 @@ export default function LoginForm() {
       setLoading(true);
       const res = await login(data);
       toast.success("Login OTP sent to email/mobile");
-      navigate("/login-verify", { state: { identifier: data.identifier } });
+      navigate("/login/verify", { state: { identifier: data.identifier } });
     } catch (err) {
       toast.error(err?.response?.data?.message || "Login failed");
     } finally {
