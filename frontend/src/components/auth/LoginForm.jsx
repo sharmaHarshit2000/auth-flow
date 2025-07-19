@@ -12,7 +12,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { login } from "../api/authAPI";
+import { login } from "../../api/authAPI";
 
 const schema = yup.object().shape({
   identifier: yup

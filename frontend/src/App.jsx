@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import SignupPage from "./pages/SignupPage";
-import SignupVerify from "./components/SignupVerify";
-import LoginForm from "./components/LoginForm";
-import LoginVerifyPage from "./components/LoginVerify";
+import SignupPage from "./pages/auth/SignupPage";
+import SignupVerify from "./components/auth/SignupVerifyForm";
+import LoginForm from "./components/auth/LoginForm";
+import LoginVerifyPage from "./components/auth/LoginVerifyForm";
 
 
 function App() {

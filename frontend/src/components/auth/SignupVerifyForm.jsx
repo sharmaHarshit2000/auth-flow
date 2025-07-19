@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
-import { verifySignup } from "../api/authAPI";
+import { verifySignup } from "../../api/authAPI";
 
 const SignupVerify = () => {
     const navigate = useNavigate();

@@ -8,7 +8,7 @@ import {
   Link,
 } from "@mui/material";
 import { toast } from "react-toastify";
-import { verifyLogin } from "../api/authAPI"; 
+import { verifyLogin } from "../../api/authAPI"; 
 import AuthLayout from "../components/AuthLayout"; 
 
 const LoginVerifyPage = () => {

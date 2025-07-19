@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { signup } from "../api/authAPI";
+import { signup } from "../../api/authAPI";
 
 const SignupForm = () => {
     const navigate = useNavigate();
