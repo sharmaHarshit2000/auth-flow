@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import cors from "cors";
+import notFound from "./middleware/notFound.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
 const app = express();
@@ -18,6 +20,11 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/auth", authRoutes);
+
+
+app.use(notFound);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
