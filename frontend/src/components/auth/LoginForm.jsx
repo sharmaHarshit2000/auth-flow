@@ -3,8 +3,9 @@ import {
   Button,
   TextField,
   Typography,
-  Link,
+   Link as MuiLink
 } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
@@ -75,9 +76,9 @@ export default function LoginForm() {
       </Button>
 
       <Typography align="center" sx={{ mt: 2 }}>
-        <Link href="/signup" variant="body2">
+        <MuiLink component={RouterLink} to="/signup" variant="body2">
           Don't have an account? Sign up
-        </Link>
+        </MuiLink>
       </Typography>
     </form>
   );

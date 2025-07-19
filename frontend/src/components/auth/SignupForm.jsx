@@ -3,8 +3,10 @@ import {
     Box,
     TextField,
     Button,
-    Link,
+    Link as MuiLink
 } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
+
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { signup } from "../../api/authAPI";
@@ -85,10 +87,11 @@ const SignupForm = () => {
             </Button>
 
             <Box mt={2} textAlign="center">
-                <Link href="/login" variant="body2">
+                <MuiLink component={RouterLink} to="/login" variant="body2">
                     Already have an account? Login
-                </Link>
+                </MuiLink>
             </Box>
+
         </Box>
     );
 };
