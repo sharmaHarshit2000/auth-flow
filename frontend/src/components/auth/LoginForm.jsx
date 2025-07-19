@@ -1,11 +1,11 @@
 import { useState } from "react";
 import {
   Button,
-  IconButton,
-  InputAdornment,
   TextField,
   Typography,
-  Link as MuiLink
+  InputAdornment,
+  IconButton,
+  Link as MuiLink,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
@@ -22,7 +22,7 @@ const schema = yup.object().shape({
     .test("is-valid", "Invalid Email or Mobile", (value) =>
       /^[0-9]{10}$/.test(value) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
     ),
-  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+  password: yup.string().min(6).required("Password is required"),
 });
 
 export default function LoginForm() {
@@ -36,9 +36,7 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleTogglePassword = () => {
-    setShowPassword((prev) => !prev);
-  };
+  const handleTogglePassword = () => setShowPassword((prev) => !prev);
 
   const onSubmit = async (data) => {
     try {
@@ -59,9 +57,8 @@ export default function LoginForm() {
         label="Email or Mobile"
         fullWidth
         margin="normal"
-        autoComplete="username"
         {...register("identifier")}
-        error={!!errors.identifier}
+        error={Boolean(errors.identifier)}
         helperText={errors.identifier?.message}
       />
 
@@ -70,18 +67,19 @@ export default function LoginForm() {
         type={showPassword ? "text" : "password"}
         fullWidth
         margin="normal"
-        autoComplete="current-password"
         {...register("password")}
-        error={!!errors.password}
+        error={Boolean(errors.password)}
         helperText={errors.password?.message}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={handleTogglePassword} edge="end">
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          ),
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={handleTogglePassword} edge="end">
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
         }}
       />
 
