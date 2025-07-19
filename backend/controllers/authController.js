@@ -70,3 +70,40 @@ export const login = async (req, res) => {
 
   return res.status(200).json({ message: "OTP sent" });
 };
+
+export const verifyLogin = (req, res) => {
+  const { identifier, otp } = req.body;
+  const user = users.find(
+    (u) => u.email === identifier || u.mobile === identifier
+  );
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const record = otps[identifier];
+
+  if (!record || record.otp !== otp || Date.now() > record.expiresAt) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  delete otps[identifier];
+
+  const accessToken = generateToken(
+    { id: user.id },
+    process.env.JWT_SECRET,
+    "10m"
+  );
+  const refreshToken = generateToken(
+    { id: user.id },
+    process.env.REFRESH_SECRET,
+    "1d"
+  );
+
+  res.cookie("accessToken", accessToken, { httpOnly: true });
+  res.cookie("refreshToken", refreshToken, { httpOnly: true });
+
+  return res
+    .status(200)
+    .json({
+      message: "Login successful",
+      user: { name: user.name, email: user.email },
+    });
+};
