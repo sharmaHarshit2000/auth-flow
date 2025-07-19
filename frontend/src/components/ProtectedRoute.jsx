@@ -7,20 +7,18 @@ const ProtectedRoute = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const verifySession = async () => {
+    const verify = async () => {
       try {
-        const res = await refreshToken();
-        console.log("Session verified via refresh:", res.data.message);
+        await refreshToken(); // Verifies session and renews token
         setAuthenticated(true);
-      } catch (err) {
-        console.warn("Session invalid:", err?.response?.data?.message || err.message);
+      } catch {
         setAuthenticated(false);
       } finally {
         setLoading(false);
       }
     };
 
-    verifySession();
+    verify();
   }, []);
 
   if (loading) return <div>Loading...</div>;
