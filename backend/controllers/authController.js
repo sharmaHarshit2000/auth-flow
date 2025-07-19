@@ -49,3 +49,24 @@ export const verifySignup = (req, res) => {
 
   return res.status(200).json({ message: "Signup verified" });
 };
+
+export const login = async (req, res) => {
+  const { identifier, password } = req.body;
+  const user = users.find(
+    (u) =>
+      (u.email === identifier || u.mobile === identifier) &&
+      u.password === password
+  );
+  if (!user) return res.status(401).json({ message: "Invalid credentials" });
+  if (!user.verified)
+    return res.status(403).json({ message: "Account not verified" });
+
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) return res.status(401).json({ message: "Invalid credentials" });
+
+  const otp = generateOTP();
+  otps[identifier] = { otp, expiresAt: Date.now() + 5 * 60 * 1000 };
+  console.log(`[OTP] Login OTP for ${identifier}: ${otp}`);
+
+  return res.status(200).json({ message: "OTP sent" });
+};
