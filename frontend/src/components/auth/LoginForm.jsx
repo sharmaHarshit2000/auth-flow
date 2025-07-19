@@ -1,16 +1,18 @@
 import { useState } from "react";
 import {
   Button,
+  IconButton,
+  InputAdornment,
   TextField,
   Typography,
-   Link as MuiLink
+  Link as MuiLink
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { toast } from "react-toastify";
 import * as yup from "yup";
-import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { login } from "../../api/authAPI";
 
 const schema = yup.object().shape({
@@ -20,7 +22,7 @@ const schema = yup.object().shape({
     .test("is-valid", "Invalid Email or Mobile", (value) =>
       /^[0-9]{10}$/.test(value) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
     ),
-  password: yup.string().min(6).required("Password is required"),
+  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
 });
 
 export default function LoginForm() {
@@ -31,7 +33,12 @@ export default function LoginForm() {
   } = useForm({ resolver: yupResolver(schema) });
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -52,19 +59,32 @@ export default function LoginForm() {
         label="Email or Mobile"
         fullWidth
         margin="normal"
+        autoComplete="username"
         {...register("identifier")}
-        error={Boolean(errors.identifier)}
+        error={!!errors.identifier}
         helperText={errors.identifier?.message}
       />
+
       <TextField
         label="Password"
-        type="password"
+        type={showPassword ? "text" : "password"}
         fullWidth
         margin="normal"
+        autoComplete="current-password"
         {...register("password")}
-        error={Boolean(errors.password)}
+        error={!!errors.password}
         helperText={errors.password?.message}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={handleTogglePassword} edge="end">
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
+
       <Button
         type="submit"
         fullWidth
@@ -77,7 +97,7 @@ export default function LoginForm() {
 
       <Typography align="center" sx={{ mt: 2 }}>
         <MuiLink component={RouterLink} to="/signup" variant="body2">
-          Don't have an account? Sign up
+          Don&apos;t have an account? Sign up
         </MuiLink>
       </Typography>
     </form>
