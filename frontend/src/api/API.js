@@ -3,7 +3,7 @@ import { refreshToken } from "./refreshAPI";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true, // Required to send cookies
+  withCredentials: true, // Required to send cookies (access & refresh tokens)
 });
 
 API.interceptors.response.use(
@@ -11,20 +11,29 @@ API.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If 401 and not retried already
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Avoid retry/redirect loop if already retried or it's the login route
+    const isLoginRoute = originalRequest.url.includes("/auth/login");
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isLoginRoute
+    ) {
       originalRequest._retry = true;
       try {
-        await refreshToken(); // Server should set new accessToken cookie
+        await refreshToken(); // Attempt to refresh access token
         return API(originalRequest); // Retry the original request
       } catch (err) {
-        console.error("Refresh token failed:", err.message);
-        window.location.href = "/login"; // Redirect to login on failure
+        console.error("Refresh token failed:", err?.response?.data?.message || err.message);
+        // Manually redirect only if not already on login route
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
         return Promise.reject(err);
       }
     }
 
-    return Promise.reject(error); // Other errors
+    return Promise.reject(error); 
   }
 );
 
