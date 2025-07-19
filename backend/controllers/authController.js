@@ -1,3 +1,6 @@
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+
 const users = [];
 const otps = {}; // { email/mobile: { otp, expiresAt } }
 
